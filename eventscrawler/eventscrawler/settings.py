@@ -1,4 +1,4 @@
-# Scrapy settings for scrapy_crawler project
+# Scrapy settings for eventscrawler project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,20 +7,20 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "scrapy_crawler"
+BOT_NAME = "eventscrawler"
 
-SPIDER_MODULES = ["scrapy_crawler.spiders"]
-NEWSPIDER_MODULE = "scrapy_crawler.spiders"
+SPIDER_MODULES = ["eventscrawler.spiders"]
+NEWSPIDER_MODULE = "eventscrawler.spiders"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = "scrapy_crawler (+http://www.yourdomain.com)"
+# USER_AGENT = "eventscrawler (+http://www.yourdomain.com)"
 USER_AGENT = 'my-license-project (http://example.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-# CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -45,13 +45,13 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    "scrapy_crawler.middlewares.ScrapyCrawlerSpiderMiddleware": 543,
+#    "eventscrawler.middlewares.FutureconSpiderMiddleware": 543,
 # }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#    "scrapy_crawler.middlewares.ScrapyCrawlerDownloaderMiddleware": 543,
+#    "eventscrawler.middlewares.FutureconDownloaderMiddleware": 543,
 # }
 
 # Enable or disable extensions
@@ -62,9 +62,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    "scrapy_crawler.pipelines.ScrapyCrawlerPipeline": 300,
-# }
+ITEM_PIPELINES = {
+    "eventscrawler.pipelines.MySqlPipeline": 600,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
@@ -88,6 +88,6 @@ ROBOTSTXT_OBEY = True
 # HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 # Set settings whose default value is deprecated to a future-proof value
-REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
-TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+# REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
+# TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
