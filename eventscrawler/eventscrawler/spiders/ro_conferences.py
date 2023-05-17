@@ -17,18 +17,9 @@ class RoConferencesSpider(CrawlSpider):
                                  "eventbrite.com/d/romania/science-and-tech--events/", "eventbrite.com/e/",
                                  "eventbrite.com/b/romania/science-and-tech/",
                                  "softlead.ro/evenimente-it-c/",
-                                 "conferencealerts.com/"), deny=("add-your-event", "promotion", "unsubscribe")),
+                                 "conferencealerts.com/"), deny=("add-your-event", "promotion", "unsubscribe", "terms",
+                                                                 "password")),
             callback="parse_item"),
-        Rule(
-            LinkExtractor(allow=('/evenimente-it-c/\d+')),
-            follow=True
-        ),
-        Rule(
-            LinkExtractor(allow=('/evenimente-it-c/.+')),
-            callback='parse_softlead'
-        ),
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='page-link' and contains(text(), 'Next')]"), follow=True),
-        # Rule(LinkExtractor(restrict_xpaths="//h3[@class='media-heading']/a"), callback='parse_conferencealerts'),
     )
 
     def parse_item(self, response):

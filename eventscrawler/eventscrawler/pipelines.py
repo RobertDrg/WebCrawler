@@ -9,7 +9,7 @@ from itemadapter import ItemAdapter
 from datetime import datetime
 
 # Different date formats used in the program
-date_formats = ['%A, %B %d, %Y', '%d %B %Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S']
+date_formats = ['%A, %B %d, %Y', '%d %B %Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S', '%B %d, %Y']
 
 categories = {
     "Science": ["medicine", "healthcare", "pharmaceutical", "health", "chemistry", "biology",
@@ -129,6 +129,8 @@ class MySqlPipeline:
         # adapter['topics'] = categorize_events(adapter['event_title'], adapter['topics'])
         if not adapter['topics']:
             raise DropItem(f"Missing event topic in {item}")
+        elif type(adapter['topics']) is list:
+            adapter['topics'] = ', '.join(adapter['topics'])
 
         item_hash = hashlib.sha1(json.dumps(dict(item), sort_keys=True).encode('utf-8')).hexdigest()
         if item_hash in self.ids_seen:
