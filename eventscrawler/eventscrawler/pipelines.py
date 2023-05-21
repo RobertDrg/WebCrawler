@@ -56,7 +56,8 @@ def reformat_event_date(given_date):
         return False
     if given_date < datetime.today():
         print('Date already passed!!')
-        return False
+        given_date = "passed"
+        return given_date
     given_date = given_date.strftime('%Y-%m-%d')
     return given_date
 
@@ -91,12 +92,12 @@ class MySqlPipeline:
 
     # creates the events_tb table in the database if it doesn't already exist
     def create_table(self):
-        # self.curr.execute("""DROP TABLE IF EXISTS events_tb""")
         self.curr.execute("""CREATE TABLE IF NOT EXISTS events_tb(
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         event_url text,
                         event_title text,
                         date_time text,
+                        call_for_papers_date text,
                         location text,
                         topics text,
                         hash text
@@ -119,10 +120,15 @@ class MySqlPipeline:
         else:
             self.already_loaded_events.add(adapter['event_title'])
 
-        if adapter.get('date_time'):
+        if adapter['date_time']:
             adapter['date_time'] = reformat_event_date(adapter['date_time'])
-        if not adapter['date_time']:
+        else:
             raise DropItem(f"Missing event date in {item}")
+        if not adapter['date_time'] or adapter['date_time'] == "passed":
+            raise DropItem(f"Event date passed or not found in {item}")
+
+        if adapter['call_for_papers_date'] != "Expired":
+            adapter['call_for_papers_date'] = reformat_event_date(adapter['call_for_papers_date'])
 
         adapter['location'] = adapter['location'].replace("\n", "")
 
@@ -147,12 +153,13 @@ class MySqlPipeline:
                 decoded_line = line.encode('utf-8').decode('unicode-escape')
                 self.file.write(decoded_line)
                 self.curr.execute("""INSERT INTO events_tb (
-                event_url, event_title, date_time, location, topics, hash)
-                 values (%s,%s,%s,%s,%s,%s)""",
+                event_url, event_title, date_time, call_for_papers_date, location, topics, hash)
+                 values (%s,%s,%s,%s,%s,%s, %s)""",
                                   (
                                       item.get('event_url'),
                                       item.get('event_title'),
                                       item.get('date_time'),
+                                      item.get('call_for_papers_date'),
                                       item.get('location'),
                                       item.get('topics'),
                                       item_hash

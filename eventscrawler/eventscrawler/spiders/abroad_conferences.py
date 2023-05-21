@@ -13,7 +13,8 @@ class AbroadconfSpider(CrawlSpider):
         Rule(
             LinkExtractor(allow=("futureconevents.com/events/", "techevents",
                                  "conferencemonkey.org/top/conferences", "conferencemonkey.org/conference/"),
-                          deny=("sponsorship", "2020", "2021", "2022", "facebook", "instagram", "subscribe")),
+                          deny=("sponsorship", "2017", "2018", "2019", "2020", "2021",
+                                "2022", "facebook", "instagram", "subscribe", "contact")),
             callback="parse_item"),
     )
 
@@ -30,17 +31,19 @@ class AbroadconfSpider(CrawlSpider):
         event_url = response.url
         event_title = response.xpath('//*[@id="page-title"]/text()').get(default="not found")
         date_time = response.xpath('//div[2]/div[2]/div[2]/div[2]/div[3]/h4/time/text()').get(default="not found")
+        call_for_papers_date = response.xpath('//div[2]/div[2]/div[6]/h4/time/text()')\
+            .get(default="Expired")
         location = response.xpath('//div[@class="location-details"]//p/text()').get(default="not found")
         topics = response.xpath('//*[@id="tags"]/li/a/text()').getall()
 
         event_title = event_title.replace("\n", "").strip()
         location = location.replace("\n", "").replace("  ", "").strip()
-        print(location)
 
         event = Event()
         event['event_url'] = event_url
         event['event_title'] = event_title
         event['date_time'] = date_time.strip()
+        event['call_for_papers_date'] = call_for_papers_date
         event['location'] = location
         event['topics'] = topics
 
@@ -52,6 +55,8 @@ class AbroadconfSpider(CrawlSpider):
         event_title = response.xpath("//header[@class='fc-event-header ']/h1/span/text()").get(default="not found")
         date_time = response.xpath("//section[@class='fc-event-header-content']/p/strong/text()") \
             .get(default="not found")
+        call_for_papers_date = response.xpath("//section[@class='fc-event-header-content']/p/strong/text()")\
+            .get(default="Expired")
         location = response.xpath("//section[@class='fc-event-header-content']/p/strong/a/text()") \
             .get(default="Online")
         category = "Cybersecurity"
@@ -60,6 +65,7 @@ class AbroadconfSpider(CrawlSpider):
         event['event_url'] = event_url
         event['event_title'] = event_title
         event['date_time'] = date_time
+        event['call_for_papers_date'] = call_for_papers_date
         event['location'] = location
         event['topics'] = category
 
@@ -70,6 +76,7 @@ class AbroadconfSpider(CrawlSpider):
         event_url = response.url
         event_title = response.xpath('//*[@id="wrapper"]/div/div/h1/text()').get(default="not found")
         date_time = response.xpath('//*[@id="sidebar"]/div/div/p/text()').get(default="not found")
+        call_for_papers_date = response.xpath('//*[@id="sidebar"]/div/div/p/text()').get(default="Expired")
         location = response.xpath('//*[@id="sidebar"]/div/div/address/text()').get(default="not found")
         category = "Tech"
 
@@ -77,6 +84,7 @@ class AbroadconfSpider(CrawlSpider):
         event['event_url'] = event_url
         event['event_title'] = event_title
         event['date_time'] = date_time
+        event['call_for_papers_date'] = call_for_papers_date
         event['location'] = location
         event['topics'] = category
 
