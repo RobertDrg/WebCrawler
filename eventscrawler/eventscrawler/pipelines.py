@@ -9,19 +9,25 @@ from itemadapter import ItemAdapter
 from datetime import datetime
 
 # Different date formats used in the program
-date_formats = ['%A, %B %d, %Y', '%d %B %Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S', '%B %d, %Y']
+date_formats = ['%A, %B %d, %Y', '%d %B %Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S',
+                '%B %d, %Y', '%d %b %Y', '%dth %B %Y', '%dth %b %Y']
 
 categories = {
     "Science": ["medicine", "healthcare", "pharmaceutical", "health", "chemistry", "biology",
-                "ecology", "physics", "statistics", "science"],
-    "IT": ["computer", "information technology", "artificial intelligence", "software", "dev", "web"],
+                "ecology", "physics", "statistics", "science", "environmental", "agriculture",
+                "climate", "mathematics", "Biotech", "research", "medicine", "healthcare", "biomedical"],
+    "IT": ["computer", "digital", "information technology", "artificial intelligence",
+           "software", "dev", "web", "tech", "technology", "Tech"],
     "AI": ["AI", "blockchain", "neural", "deep learning", "natural language", "data mining"],
     "Cybersecurity": ["cybersecurity", "secure", "malware", "encryption", "privacy", "phishing"],
     "Engineering": ["Mechanical Engineering", "Electrical Engineering", "Civil Engineering",
                     "Aerospace Engineering", "Chemical Engineering", "Environmental Engineering",
                     "Industrial Engineering", "Nuclear Engineering", "Biomedical Engineering"],
-    "Business": ["economic", "business", "management", "finance", "accounting", "entrepreneurship"],
-    "Media": ["media", "cinematic", "communication", "cinema", "miscommunication"]
+    "Business": ["economic", "economics", "bank", "banking", "regulation", "trade", "income", "labour", "consumer",
+                 "business", "management", "finance", "accounting", "entrepreneurship", "marketing", "wealth"],
+    "Media": ["media", "cinematic", "communication", "cinema", "miscommunication", "tourism", "Communication"],
+    "Education": ["education", "geography", "students", "faculty", "faculties", "university", "universities",
+                  "academic", "academia"]
 }
 
 
@@ -29,10 +35,13 @@ def categorize_events(title, description):
     event_category = None
     for category, keywords in categories.items():
         for keyword in keywords:
-            if keyword in title.lower() or keyword in description.lower():
-                event_category = category
-                break
-    return event_category
+            if len(description) > 20:
+                if keyword in title or keyword in description:
+                    event_category = category
+                    break
+    if event_category:
+        return event_category
+    return description
 
 
 # This function converts date to a standardized format

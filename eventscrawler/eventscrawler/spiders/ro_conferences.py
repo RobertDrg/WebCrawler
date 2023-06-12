@@ -10,15 +10,21 @@ class RoConferencesSpider(CrawlSpider):
     start_urls = ['https://codecamp.ro/confs', 'https://www.eventbrite.com/b/romania/science-and-tech/',
                   'https://softlead.ro/evenimente-it-c', 'https://softlead.ro/evenimente-it-c/2',
                   'https://softlead.ro/evenimente-it-c/3',
-                  'https://conferencealerts.com/country-listing?country=Romania']
+                  'https://conferencealerts.com/country-listing?country=Romania',
+                  # 'https://www.conferencealerts.org/romania.php'
+                  ]
     rules = (
+        # Rule(LinkExtractor(allow=r"/romania.php?page=d+"), callback="parse_conference_alerts_org", follow=True),
         Rule(
             LinkExtractor(allow=("codecamp.ro/conferences/",
                                  "eventbrite.com/d/romania/science-and-tech--events/", "eventbrite.com/e/",
                                  "eventbrite.com/b/romania/science-and-tech/",
                                  "softlead.ro/evenimente-it-c/",
-                                 "conferencealerts.com/"), deny=("add-your-event", "promotion", "unsubscribe", "terms",
-                                                                 "password", "help", "contact", "subscribe")),
+                                 "conferencealerts.com/",
+                                 # "conferencealerts.org/", "conferencealerts.org/romania.php?page="
+                                 ),
+                          deny=("add-your-event", "promotion", "unsubscribe", "terms", "promote", "how-to-use",
+                                "password", "help", "contact", "subscribe", "about", "blog", "privacy", "sitemap")),
             callback="parse_item"),
     )
 
@@ -31,6 +37,43 @@ class RoConferencesSpider(CrawlSpider):
             yield from self.parse_softlead(response)
         elif "conferencealerts.com" in response.url:
             yield from self.parse_conferencealerts(response)
+        # elif "conferencealerts.org" in response.url:
+        #     yield from self.parse_conference_alerts_org(response)
+
+    def parse_conference_alerts_org(self, response):
+        start_date, start_date_day, start_date_month, start_date_year = None, None, None, None
+        self.logger.info(f'Hi, this is an event page! {response.url}')
+        event_url = response.url
+        event_title = \
+            response.xpath('/html/body/div[5]/div/div[2]/div/div[2]/div/table/tbody/tr[2]/td[2]/span/strong/text()') \
+            .get()
+        start_date_day = str(response.xpath('//tr[2]/td[1]/div[1]/p/b/text()').get(default="not found"))
+        start_date_month = str(response.xpath('//tr[2]/td[1]/div[1]/p/text()').get(default="not found"))
+        start_date_year = str(response.xpath('//tr[2]/td[1]/div[1]/p/span/text()').get(default="not found"))
+        call_for_papers_date = response.xpath('//tbody/tr[7]/td/span/text()').get(default="Expired")
+        location = response.xpath('//table/tbody/tr[9]//span/text()').get(default="not found")
+        topics = response.xpath('//tr[11]/td/span/text()[2]').get(default="not found")
+        print(event_title)
+        print(location)
+
+        if location != "not found":
+            location = ', '.join(location.split(',')[1:]).strip()
+        if start_date_day != "not found":
+            start_date_day = start_date_day.replace("th", "").replace("st", "").replace("nd", "").replace("rd", "")
+            if start_date_year != "not found":
+                if start_date_month != "not found":
+                    start_date_month = start_date_month.replace("\n", "").replace("\t", "").strip()
+                    start_date = f"{start_date_day} {start_date_month} {start_date_year}"
+
+        event = Event()
+        event['event_url'] = event_url
+        event['event_title'] = event_title
+        event['date_time'] = start_date if start_date else "not found"
+        event['call_for_papers_date'] = call_for_papers_date
+        event['location'] = location
+        event['topics'] = topics
+
+        yield event
 
     def parse_conferencealerts(self, response):
         start_date = f''
@@ -38,12 +81,12 @@ class RoConferencesSpider(CrawlSpider):
         event_url = response.url
         event_title = response.xpath('//*[@id="eventNameHeader"]/text()').get()
         date_time = str(response.xpath('//*[@id="eventDate"]/text()').get(default="not found"))
-        call_for_papers_date = str(response.xpath('//*[@id="eventDeadline"]/text()').get(default="Expired"))
+        call_for_papers_date = str(response.xpath('//div[8]/table/tbody/tr/td[3]/span[10]/text()')
+                                   .get(default="Expired"))
         location = response.xpath('//*[@id="eventCountry"]/text()').get()
         topics = response.xpath('//*[@id="eventDescription"]/text()').get(default="not found").split('.')[0].strip()
 
         if date_time != "not found":
-            print(date_time)
             pattern = r"(\b\d{1,2})(?:st|nd|rd|th)?\s+to\s+\d{1,2}(?:st|nd|rd|th)?\s+(\w+)\s+(\d{4})"
             match = re.search(pattern, date_time)
             if match:
@@ -51,11 +94,6 @@ class RoConferencesSpider(CrawlSpider):
                 month = match.group(2)
                 year = match.group(3)
                 start_date = f"{start_day} {month} {year}"
-        if call_for_papers_date != "Expired":
-            call_for_papers_date = call_for_papers_date.replace("th", "")
-            call_for_papers_date = call_for_papers_date.replace("rd", "")
-            call_for_papers_date = call_for_papers_date.replace("nd", "")
-            call_for_papers_date = call_for_papers_date.replace("st", "")
         event = Event()
         event['event_url'] = event_url
         event['event_title'] = event_title
@@ -72,7 +110,7 @@ class RoConferencesSpider(CrawlSpider):
         event_url = response.url
         event_title = response.xpath("//h1[@class='elementor-heading-title elementor-size-default']/text()").get()
         date_time = response.xpath("//div[@class='jet-listing-dynamic-field__content']/text()").get()
-        call_for_papers_date = response.xpath("//div[@class='jet-listing-dynamic-field__content']/text()")\
+        call_for_papers_date = response.xpath("//div[@class='jet-listing-dynamic-field__content']/text()") \
             .get(default="Expired")
         location = response.xpath("//span[@class='elementor-icon-list-text']/text()").get()
         topics = 'Codecamp'
@@ -113,7 +151,7 @@ class RoConferencesSpider(CrawlSpider):
         self.logger.info(f'Hi, this is an event page! {response.url}')
         event_url = response.url
         event_date = response.xpath('//*[@id="content"]/div[2]/div/ul[1]/li[2]/text()[2]').get(default="not found")
-        call_for_papers_date = response.xpath('//*[@id="content"]/div[2]/div/ul[1]/li[2]/text()[2]')\
+        call_for_papers_date = response.xpath('//*[@id="content"]/div[2]/div/ul[1]/li[2]/text()[2]') \
             .get(default="Expired")
         location = response.xpath('//*[@id="content"]/div[2]/div/ul[1]/li[1]/text()[2]').get(default="not found")
         topics = "ITC&C"

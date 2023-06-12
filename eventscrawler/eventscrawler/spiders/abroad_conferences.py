@@ -31,7 +31,7 @@ class AbroadconfSpider(CrawlSpider):
         event_url = response.url
         event_title = response.xpath('//*[@id="page-title"]/text()').get(default="not found")
         date_time = response.xpath('//div[2]/div[2]/div[2]/div[2]/div[3]/h4/time/text()').get(default="not found")
-        call_for_papers_date = response.xpath('//div[2]/div[2]/div[6]/h4/time/text()')\
+        call_for_papers_date = response.xpath('//div[2]/div[2]/div[2]/div[2]/div[6]/h4/time/text()')\
             .get(default="Expired")
         location = response.xpath('//div[@class="location-details"]//p/text()').get(default="not found")
         topics = response.xpath('//*[@id="tags"]/li/a/text()').getall()
@@ -43,7 +43,7 @@ class AbroadconfSpider(CrawlSpider):
         event['event_url'] = event_url
         event['event_title'] = event_title
         event['date_time'] = date_time.strip()
-        event['call_for_papers_date'] = call_for_papers_date
+        event['call_for_papers_date'] = call_for_papers_date.strip()
         event['location'] = location
         event['topics'] = topics
 

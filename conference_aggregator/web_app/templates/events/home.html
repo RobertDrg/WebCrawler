@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css" />
+  <title>Conference Aggregator</title>
+  <style>
+  body {
+    background-color: #f2f3f4; /* Light grey color */
+  }
+  .slick-slide {
+    margin: 0 10px;
+  }
+
+  .event-list-title {
+    background-color: #f8f9fa;
+    padding: 10px;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: text-shadow 0.3s ease-in-out;
+  }
+
+  .event-list-title:hover {
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .topics-title {
+    background-color: #f8f9fa;
+    padding: 10px;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: text-shadow 0.3s ease-in-out;
+  }
+
+  .topics-title:hover {
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .event-postcard {
+    background-color: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 250px; /* Set a minimum height for the cards */
+  }
+
+  .card-header {
+    background-color: #87cefa; /* Light blue color */
+    padding: 10px;
+    height: 50px;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: text-shadow 0.3s ease-in-out;
+    flex-grow: 0; /* Prevent the header from growing */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-header a {
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .card-body {
+    overflow: hidden; /* Hide overflowing content */
+    height: 200px; /* Set a fixed height for the card body */
+    flex-grow: 1; /* Allow the body to grow and fill the remaining space */
+  }
+
+  .event-title-link {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+  }
+
+  .event-title-link:hover {
+    color: #007bff;
+  }
+
+  .event-details li {
+    list-style: none;
+    margin-bottom: 10px;
+  }
+
+  .event-details ul {
+    padding-left: 0;
+  }
+
+  .footer {
+    background-color: #f8f9fa;
+    padding: 20px 0;
+    text-align: center;
+    color: #333;
+  }
+
+  .footer p {
+    margin-bottom: 10px;
+  }
+  </style>
+</head>
+
+<body>
+  {% include 'events/navbar.html' %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <!-- Sidebar content -->
+        <h2 class="topics-title">Topics</h2>
+        <div class="list-group">
+          <a href="{% url 'event-list' %}">All</a>
+          {% for topic in topics %}
+          <a href="{% url 'event-list' %}?topic={{ topic }}" class="list-group-item list-group-item-action">{{ topic }}</a>
+          {% endfor %}
+        </div>
+        <button class="btn btn-link" id="moreButton">Show More</button>
+      </div>
+      <div class="col-md-9">
+        <!-- Event carousel - All events -->
+        <h1 class="event-list-title text-center">Upcoming Events</h1>
+        <div class="event-list">
+          <div class="carousel" id="eventCarousel">
+            {% for event in nearest_events %}
+            <div class="event-postcard">
+              <div class="card-header">
+                <a href="{% url 'event_details' event_id=event.id %}" class="event-title-link">{{ event.event_title }}</a>
+              </div>
+              <div class="card-body event-details">
+                <ul>
+                  <li>Date: {{ event.date_time }}</li>
+                  <li>Call for papers deadline: {{ event.call_for_papers_date }}</li>
+                  <li>Location: {{ event.location }}</li>
+                </ul>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Event carousel - Events in Romania -->
+        <h1 class="event-list-title text-center">Upcoming Events in Romania</h1>
+        <div class="event-list">
+          <div class="carousel" id="eventCarouselRomania">
+            {% for event in nearest_events_romania %}
+            <div class="event-postcard">
+              <div class="card-header">
+                <a href="{% url 'event_details' event_id=event.id %}" class="event-title-link">{{ event.event_title }}</a>
+              </div>
+              <div class="card-body event-details">
+                <ul>
+                  <li>Date: {{ event.date_time }}</li>
+                  <li>Call for papers deadline: {{ event.call_for_papers_date }}</li>
+                  <li>Location: {{ event.location }}</li>
+                </ul>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Event carousel - Events from Tech category -->
+        <h1 class="event-list-title text-center">Upcoming Tech Events</h1>
+        <div class="event-list">
+          <div class="carousel" id="eventCarouselTech">
+            {% for event in nearest_events_tech %}
+            <div class="event-postcard">
+              <div class="card-header">
+                <a href="{% url 'event_details' event_id=event.id %}" class="event-title-link">{{ event.event_title }}</a>
+              </div>
+              <div class="card-body event-details">
+                <ul>
+                  <li>Date: {{ event.date_time }}</li>
+                  <li>Call for papers deadline: {{ event.call_for_papers_date }}</li>
+                  <li>Location: {{ event.location }}</li>
+                </ul>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; {{ current_year }} Conference Aggregator. All Rights Reserved.</p>
+      <p>CONFERENCE ALERTS: Keep yourself updated with the details of conferences of your interest going on around the globe through our free email service which we will provide once you register yourself on our website.</p>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // Initialize Slick carousel - All events
+      $('#eventCarousel').slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 5000,
+        prevArrow: false,
+        nextArrow: false,
+        responsive: [
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+          }
+        ]
+      });
+
+      // Initialize Slick carousel - Events in Romania
+      $('#eventCarouselRomania').slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 5000,
+        prevArrow: false,
+        nextArrow: false,
+        responsive: [
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+          }
+        ]
+      });
+
+      // Initialize Slick carousel - Tech Events
+      $('#eventCarouselTech').slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 5000,
+        prevArrow: false,
+        nextArrow: false,
+        responsive: [
+          {
+            breakpoint: 768,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+          }
+        ]
+      });
+
+      // Hide all but the first five topics initially
+      $('.list-group .list-group-item:gt(5)').hide();
+
+      // Show more topics when the "More" button is clicked
+      $('#moreButton').on('click', function () {
+        $('.list-group .list-group-item:hidden:lt(5)').slideDown();
+
+        // Hide the "More" button if there are no hidden topics left
+        if ($('.list-group .list-group-item:hidden').length === 0) {
+          $('#moreButton').hide();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+      <title>Conference Aggregator</title>
+    <style>
+    body {
+        background-color: #f2f3f4; /* Light grey color */
+    }
+    .event-details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 70vh;
+    }
+
+    .page-title {
+        background-color: #f8f9fa;
+        padding: 10px;
+        color: #333;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        transition: text-shadow 0.3s ease-in-out;
+    }
+
+    .page-title:hover {
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .event-title-link:hover {
+        color: #007bff;
+    }
+
+    .event-title-link {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s ease-in-out;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 10px;
+        color: #333;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        transition: text-shadow 0.3s ease-in-out;
+    }
+
+    .card-header:hover {
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px 0;
+      text-align: center;
+      color: #333;
+    }
+
+    .footer p {
+      margin-bottom: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    {% include 'events/navbar.html' %}
+
+    {% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="page-title">My Events</h1>
+                {% if favorite_events %}
+                    {% for event in favorite_events %}
+                        {% include 'events/event_postcard.html' %}
+                    {% endfor %}
+                {% else %}
+                    <p>No favorite events found.</p>
+                {% endif %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" name="generate_pdf" class="btn btn-primary">Generate PDF</button>
+                </form>
+                <ul class="pagination justify-content-center">
+                    {% if favorite_events.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">&laquo; first</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ events.previous_page_number }}">previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item">
+                        <span class="page-link">{{ favorite_events.number }}</span>
+                    </li>
+
+                    {% if favorite_events.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ favorite_events.next_page_number }}">next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ favorite_events.paginator.num_pages }}">last &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    <footer class="footer">
+    <div class="container">
+      <p>&copy; {{ current_year }} Conference Aggregator. All Rights Reserved.</p>
+      <p>CONFERENCE ALERTS: Keep yourself updated with the details of conferences of your interest going on around the globe through our free email service which we will provide once you register yourself on our website.</p>
+    </div>
+  </footer>
+</body>
