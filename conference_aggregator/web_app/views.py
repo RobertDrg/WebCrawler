@@ -182,7 +182,7 @@ def my_events(request):
 
     if my_app_user:
         favorite_events = my_app_user.favorite_events.all()
-        paginator = Paginator(favorite_events, 10)
+        paginator = Paginator(favorite_events, 5)
         page = request.GET.get('page')
         events_page = paginator.get_page(page)
     else:

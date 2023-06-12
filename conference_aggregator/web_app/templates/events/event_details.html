@@ -6,23 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
     integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-    <title>Conference Aggregator</title>
+  <title>Conference Aggregator</title>
   <style>
     body {
-      background-color: #f2f3f4; /* Light grey color */
+      background-color: #f2f3f4;
+      /* Light grey color */
+    }
+
+    .container {
+      max-width: 1200px;
+      /* Increase the maximum width value */
     }
 
     .event-details {
-      margin: 30px;
-      padding: 30px;
+      margin: 35px;
+      padding: 100px;
       background-color: #fff;
-      border-radius: 5px;
+      border-radius: 1px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .event-title {
       text-align: center;
       margin-bottom: 30px;
+      position: relative;
     }
 
     .event-title h2 {
@@ -38,12 +45,62 @@
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
     }
 
+    .info-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #f8f9fa;
+      /* Light grey color */
+      padding: 10px 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .info-section .location-icon,
+    .info-section .calendar-icon {
+      font-size: 24px;
+      color: #777;
+      margin-right: 10px;
+    }
+
+    .event-details .details-section {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid #ddd;
+    }
+
+    .event-details .details-section h4 {
+      margin-bottom: 10px;
+      font-size: 20px;
+      color: #333;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-details .details-section p {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-family: Arial, sans-serif; /* Replace with your preferred font */
+    }
+
+    .event-details .details-section p a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .event-details .details-section p a:hover {
+      text-decoration: underline;
+    }
+
     .event-topics {
       margin-top: 20px;
       margin-bottom: 30px;
       list-style-type: none;
       padding: 0;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
     .event-topics li {
@@ -51,6 +108,7 @@
       font-size: 16px;
       color: #777;
       text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+      margin-right: 10px;
     }
 
     .event-actions {
@@ -85,17 +143,24 @@
         <div class="event-details">
           <section class="event-title">
             <h2>{{ event.event_title }}</h2>
+            <div class="info-section">
+              <div>
+                <span class="location-icon">&#128205;</span>
+                <span class="event-info">{{ event.location }}</span>
+              </div>
+              <div>
+                <span class="calendar-icon">&#128197;</span>
+                <span class="event-info">{{ event.date_time }}</span>
+              </div>
+            </div>
           </section>
 
-          <section class="event-details">
-            <p class="event-info">Date: {{ event.date_time }}</p>
-            <p class="event-info">Call for Papers Date: {{ event.call_for_papers_date }}</p>
-            <p class="event-info">Location: {{ event.location }}</p>
-            <p class="event-info">Event Link: <a href="{{ event.event_url }}">{{ event.event_url }}</a></p>
-            <h3>Topics:</h3>
-            <ul class="event-topics">
-              <li>{{ event.topics }}</li>
-            </ul>
+          <section class="details-section">
+            <h4>Details:</h4>
+            <p class="event-info"><strong>Call for Papers Date:</strong> {{ event.call_for_papers_date }}</p>
+            <p class="event-info"><strong>Event Link:</strong> <a href="{{ event.event_url }}">{{ event.event_url }}</a>
+            </p>
+            <h4>Topics: {{ event.topics }}</h4>
           </section>
 
           <section class="event-actions">
@@ -113,7 +178,8 @@
   <footer class="footer">
     <div class="container">
       <p>&copy; {{ current_year }} Conference Aggregator. All Rights Reserved.</p>
-      <p>CONFERENCE ALERTS: Keep yourself updated with the details of conferences of your interest going on around the globe through our free email service which we will provide once you register yourself on our website.</p>
+      <p>CONFERENCE ALERTS: Keep yourself updated with the details of conferences of your interest going on around the
+        globe through our free email service which we will provide once you register yourself on our website.</p>
     </div>
   </footer>
 </body>

@@ -12,36 +12,46 @@ from datetime import datetime
 date_formats = ['%A, %B %d, %Y', '%d %B %Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S',
                 '%B %d, %Y', '%d %b %Y', '%dth %B %Y', '%dth %b %Y']
 
-categories = {
-    "Science": ["medicine", "healthcare", "pharmaceutical", "health", "chemistry", "biology",
-                "ecology", "physics", "statistics", "science", "environmental", "agriculture",
-                "climate", "mathematics", "Biotech", "research", "medicine", "healthcare", "biomedical"],
-    "IT": ["computer", "digital", "information technology", "artificial intelligence",
-           "software", "dev", "web", "tech", "technology", "Tech"],
-    "AI": ["AI", "blockchain", "neural", "deep learning", "natural language", "data mining"],
-    "Cybersecurity": ["cybersecurity", "secure", "malware", "encryption", "privacy", "phishing"],
-    "Engineering": ["Mechanical Engineering", "Electrical Engineering", "Civil Engineering",
-                    "Aerospace Engineering", "Chemical Engineering", "Environmental Engineering",
-                    "Industrial Engineering", "Nuclear Engineering", "Biomedical Engineering"],
-    "Business": ["economic", "economics", "bank", "banking", "regulation", "trade", "income", "labour", "consumer",
-                 "business", "management", "finance", "accounting", "entrepreneurship", "marketing", "wealth"],
-    "Media": ["media", "cinematic", "communication", "cinema", "miscommunication", "tourism", "Communication"],
-    "Education": ["education", "geography", "students", "faculty", "faculties", "university", "universities",
-                  "academic", "academia"]
-}
 
+def categorize_topics(topics):
+    categories = {
+        'Economics and Finance': ['finance', 'banking', 'accounting', 'monetary', 'economics', 'macroeconomics',
+                                  'microeconomics', 'development', 'trade', 'wealth', 'income', 'institutional',
+                                  'Islamic'],
+        'Technology and Innovation': ['cloud', 'platforms', 'artificial intelligence', 'machine learning', 'robotics',
+                                      'automation', 'cybersecurity', 'digital trade', 'e-health', 'computing'],
+        'Agriculture and Food Security': ['agriculture', 'farmers', 'food security', 'climate', 'resource', 'energy',
+                                          'environmental'],
+        'Education and Research': ['education', 'teaching', 'research', 'phd', 'post-doc', 'interdisciplinary',
+                                   'methodologies'],
+        'Infrastructure and Engineering': ['civil engineering', 'infrastructure', 'transportation', 'water',
+                                           'management'],
+        'Social Sciences': ['employment', 'labor market', 'technologies', 'gig economy', 'gender', 'humanities',
+                            'migration', 'refugees', 'governance', 'impact', 'sustainable'],
+        'Conferences and Events': ['conference', 'call for papers', 'research conference', 'symposium', 'meeting'],
+        'Health and Medicine': ['health', 'medicine', 'pandemic', 'medical', 'biotechnology'],
+        'Politics and Geopolitics': ['politics', 'geopolitics', 'international relations', 'trade', 'China', 'Russia',
+                                     'Ukraine', 'Euro area'],
+        'Management and Business': ['management', 'business', 'finance', 'marketing', 'entrepreneurship',
+                                    'strategic management']
+    }
 
-def categorize_events(title, description):
-    event_category = None
+    categorized_topics = {}
+
+    categorized = False
     for category, keywords in categories.items():
         for keyword in keywords:
-            if len(description) > 20:
-                if keyword in title or keyword in description:
-                    event_category = category
-                    break
-    if event_category:
-        return event_category
-    return description
+            if keyword.lower() in topics:
+                categorized_topics.setdefault(category, []).append(topics)
+                categorized = True
+                break
+        if categorized:
+            break
+
+    if not categorized:
+        categorized_topics.setdefault('Other', []).append(topics)
+
+    return categorized_topics
 
 
 # This function converts date to a standardized format
@@ -141,7 +151,7 @@ class MySqlPipeline:
 
         adapter['location'] = adapter['location'].replace("\n", "")
 
-        # adapter['topics'] = categorize_events(adapter['event_title'], adapter['topics'])
+        adapter['topics'] = categorize_topics(adapter['topics'])
         if not adapter['topics']:
             raise DropItem(f"Missing event topic in {item}")
         elif type(adapter['topics']) is list:

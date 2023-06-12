@@ -71,7 +71,30 @@
                 <h1 class="page-title">My Events</h1>
                 {% if favorite_events %}
                     {% for event in favorite_events %}
-                        {% include 'events/event_postcard.html' %}
+                        <div class="card">
+                        <div class="card-header">
+                          <a href="{% url 'event_details' event_id=event.id %}" class="event-title-link">{{ event.event_title }}</a>
+                        </div>
+                        <div class="card-body">
+                          <p class="card-text">
+                            <ul>
+                              <li>Date: {{ event.date_time }}</li>
+                              <li>Call for papers deadline: {{ event.call_for_papers_date }}</li>
+                              <li>Event Web Page: <a href="{{ event.event_url }}">{{ event.event_url }}</a></li>
+                              <li>Location: {{ event.location }}</li>
+                              <li>Description: {{ event.topics }}</li>
+                            </ul>
+                          </p>
+                        </div>
+                        <div class="card-footer text-center">
+                          <form method="POST" action="{% url 'my_events' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="event_id" value="{{ event.pk }}">
+                            <button type="submit" class="btn btn-primary">Unfavorite</button>
+                          </form>
+                        </div>
+                      </div>
+                      <br/>
                     {% endfor %}
                 {% else %}
                     <p>No favorite events found.</p>
