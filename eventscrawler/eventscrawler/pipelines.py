@@ -19,13 +19,14 @@ def categorize_topics(topics):
                                   'microeconomics', 'development', 'trade', 'wealth', 'income', 'institutional',
                                   'Islamic'],
         'Technology and Innovation': ['cloud', 'platforms', 'artificial intelligence', 'machine learning', 'robotics',
-                                      'automation', 'cybersecurity', 'digital trade', 'e-health', 'computing'],
+                                      'automation', 'cybersecurity', 'digital trade', 'e-health', 'computing',
+                                      '#technology', 'software', 'testing', 'IT', 'it'],
         'Agriculture and Food Security': ['agriculture', 'farmers', 'food security', 'climate', 'resource', 'energy',
                                           'environmental'],
         'Education and Research': ['education', 'teaching', 'research', 'phd', 'post-doc', 'interdisciplinary',
-                                   'methodologies'],
+                                   'methodologies', 'scholars'],
         'Infrastructure and Engineering': ['civil engineering', 'infrastructure', 'transportation', 'water',
-                                           'management'],
+                                           'management', 'industrial'],
         'Social Sciences': ['employment', 'labor market', 'technologies', 'gig economy', 'gender', 'humanities',
                             'migration', 'refugees', 'governance', 'impact', 'sustainable'],
         'Conferences and Events': ['conference', 'call for papers', 'research conference', 'symposium', 'meeting'],
@@ -36,22 +37,25 @@ def categorize_topics(topics):
                                     'strategic management']
     }
 
-    categorized_topics = {}
-
     categorized = False
-    for category, keywords in categories.items():
-        for keyword in keywords:
-            if keyword.lower() in topics:
-                categorized_topics.setdefault(category, []).append(topics)
-                categorized = True
+
+    if isinstance(topics, str):
+        topics = [topics]
+
+    for topic in topics:
+        for category, keywords in categories.items():
+            for keyword in keywords:
+                if keyword in topic:
+                    topics = category
+                    categorized = True
+                    break
+            if categorized:
                 break
-        if categorized:
-            break
 
     if not categorized:
-        categorized_topics.setdefault('Other', []).append(topics)
+        topics = 'Other'
 
-    return categorized_topics
+    return str(topics)
 
 
 # This function converts date to a standardized format
@@ -74,7 +78,7 @@ def reformat_event_date(given_date):
     if not found_format:
         return False
     if given_date < datetime.today():
-        print('Date already passed!!')
+        # print('Date already passed!!')
         given_date = "passed"
         return given_date
     given_date = given_date.strftime('%Y-%m-%d')
@@ -151,6 +155,7 @@ class MySqlPipeline:
 
         adapter['location'] = adapter['location'].replace("\n", "")
 
+        print(type(adapter['topics']))
         adapter['topics'] = categorize_topics(adapter['topics'])
         if not adapter['topics']:
             raise DropItem(f"Missing event topic in {item}")

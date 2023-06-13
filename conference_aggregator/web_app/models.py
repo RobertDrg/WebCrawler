@@ -19,19 +19,3 @@ class EventsTb(models.Model):
 
     class Meta:
         db_table = 'events_tb'
-
-    @property
-    def days_till(self):
-        today = date.today()
-        days_till = self.date_time.date() - today
-        days_till_stripped = str(days_till).split(",", 1)[0]
-        return days_till_stripped
-
-    @property
-    def has_passed(self):
-        today = date.today()
-        if self.date_time.date() < today:
-            thing = "Past"
-        else:
-            thing = "Future"
-        return thing

@@ -59,7 +59,7 @@ class AbroadconfSpider(CrawlSpider):
             .get(default="Expired")
         location = response.xpath("//section[@class='fc-event-header-content']/p/strong/a/text()") \
             .get(default="Online")
-        category = "Cybersecurity"
+        category = "cybersecurity"
 
         event = Event()
         event['event_url'] = event_url
