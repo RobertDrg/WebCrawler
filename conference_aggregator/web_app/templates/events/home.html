@@ -264,11 +264,11 @@
       });
 
       // Hide all but the first five topics initially
-      $('.list-group .list-group-item:gt(5)').hide();
+      $('.list-group .list-group-item:gt(3)').hide();
 
       // Show more topics when the "More" button is clicked
       $('#moreButton').on('click', function () {
-        $('.list-group .list-group-item:hidden:lt(5)').slideDown();
+        $('.list-group .list-group-item:hidden:lt(3)').slideDown();
 
         // Hide the "More" button if there are no hidden topics left
         if ($('.list-group .list-group-item:hidden').length === 0) {

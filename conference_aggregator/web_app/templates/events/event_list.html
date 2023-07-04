@@ -102,11 +102,11 @@
                     {% for topic in topics %}
                         <a href="{% url 'event-list' %}?topic={{ topic }}" class="list-group-item list-group-item-action">{{ topic }}</a>
                     {% endfor %}
+                    <button class="btn btn-link" id="moreButton">Show More</button>
                 </div>
-                <button class="btn btn-link" id="moreButton">Show More</button>
             </div>
             <div class="col-md-9">
-                <h1 class="event-list-title">Event List</h1>
+                <h1 class="event-list-title">Events List</h1>
                 <div class="event-list">
                     {% for event in events %}
                         {% include 'events/event_postcard.html' %}

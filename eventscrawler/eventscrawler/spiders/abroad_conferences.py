@@ -1,6 +1,15 @@
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
-from eventscrawler.eventscrawler.items import Event
+from eventscrawler.items import Event
+from urllib.parse import urlencode
+
+PROXY_API_KEY = 'dccc8b17-8406-481e-9b98-549f74800bb3'
+
+
+def get_proxy_url(url):
+    payload = {'api_key': PROXY_API_KEY, 'url': url}
+    proxy_url = 'https://proxy.scrapeops.io/v1/?' + urlencode(payload)
+    return proxy_url
 
 
 class AbroadconfSpider(CrawlSpider):

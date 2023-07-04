@@ -13,28 +13,60 @@ date_formats = ['%A, %B %d, %Y', '%d %B %Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S',
                 '%B %d, %Y', '%d %b %Y', '%dth %B %Y', '%dth %b %Y']
 
 
+# This function converts date to a standardized format
+# If the input date is not in any of the predefined formats, it returns False
+# If the date is in the past, it also returns False
+def reformat_event_date(given_date):
+    found_format = False
+    if ' - ' in given_date:
+        day, _, end_day, month, year = given_date.split()
+        given_date = f"{day} {month} {year}"
+    given_date = given_date.replace(" ET", "")
+    given_date = given_date.replace(" CT", "")
+    given_date = given_date.replace("\n", "")
+    for date_format in date_formats:
+        try:
+            given_date = datetime.strptime(str(given_date), str(date_format))
+            found_format = True
+        except ValueError as e:
+            pass
+    if not found_format and given_date != "not found":
+        return False
+
+    if given_date != 'not found':
+        if given_date < datetime.today():
+            print('Date already passed!!')
+            given_date = "passed"
+            return given_date
+        given_date = given_date.strftime('%Y-%m-%d')
+    return given_date
+
+
 def categorize_topics(topics):
     categories = {
-        'Economics and Finance': ['finance', 'banking', 'accounting', 'monetary', 'economics', 'macroeconomics',
-                                  'microeconomics', 'development', 'trade', 'wealth', 'income', 'institutional',
-                                  'Islamic'],
         'Technology and Innovation': ['cloud', 'platforms', 'artificial intelligence', 'machine learning', 'robotics',
                                       'automation', 'cybersecurity', 'digital trade', 'e-health', 'computing',
-                                      '#technology', 'software', 'testing', 'IT', 'it'],
+                                      '#technology', 'software', 'testing', 'IT', 'it', 'technological',
+                                      'Technological'
+                                      ],
+        'Economics and Finance': ['finance', 'banking', 'accounting', 'monetary', 'economics', 'macroeconomics',
+                                  'microeconomics', 'development', 'trade', 'wealth', 'income', 'institutional',
+                                  'Islamic', 'economic', 'monetary', 'financial', 'public', 'Monetary', 'inflation',
+                                  'Economics'],
         'Agriculture and Food Security': ['agriculture', 'farmers', 'food security', 'climate', 'resource', 'energy',
                                           'environmental'],
         'Education and Research': ['education', 'teaching', 'research', 'phd', 'post-doc', 'interdisciplinary',
-                                   'methodologies', 'scholars'],
+                                   'methodologies', 'scholars', 'students'],
         'Infrastructure and Engineering': ['civil engineering', 'infrastructure', 'transportation', 'water',
                                            'management', 'industrial'],
         'Social Sciences': ['employment', 'labor market', 'technologies', 'gig economy', 'gender', 'humanities',
                             'migration', 'refugees', 'governance', 'impact', 'sustainable'],
         'Conferences and Events': ['conference', 'call for papers', 'research conference', 'symposium', 'meeting'],
-        'Health and Medicine': ['health', 'medicine', 'pandemic', 'medical', 'biotechnology'],
+        'Health and Medicine': ['health', 'medicine', 'pandemic', 'medical', 'biotechnology', 'age'],
         'Politics and Geopolitics': ['politics', 'geopolitics', 'international relations', 'trade', 'China', 'Russia',
                                      'Ukraine', 'Euro area'],
         'Management and Business': ['management', 'business', 'finance', 'marketing', 'entrepreneurship',
-                                    'strategic management']
+                                    'strategic management', 'Management']
     }
 
     categorized = False
@@ -56,33 +88,6 @@ def categorize_topics(topics):
         topics = 'Other'
 
     return str(topics)
-
-
-# This function converts date to a standardized format
-# If the input date is not in any of the predefined formats, it returns False
-# If the date is in the past, it also returns False
-def reformat_event_date(given_date):
-    found_format = False
-    if ' - ' in given_date:
-        day, _, end_day, month, year = given_date.split()
-        given_date = f"{day} {month} {year}"
-    given_date = given_date.replace(" ET", "")
-    given_date = given_date.replace(" CT", "")
-    given_date = given_date.replace("\n", "")
-    for date_format in date_formats:
-        try:
-            given_date = datetime.strptime(str(given_date), str(date_format))
-            found_format = True
-        except ValueError as e:
-            pass
-    if not found_format:
-        return False
-    if given_date < datetime.today():
-        # print('Date already passed!!')
-        given_date = "passed"
-        return given_date
-    given_date = given_date.strftime('%Y-%m-%d')
-    return given_date
 
 
 class MySqlPipeline:
@@ -138,6 +143,9 @@ class MySqlPipeline:
         if adapter.get('event_title') == "not found":
             raise DropItem(f"Missing event title in {item}")
 
+        if adapter.get('location') == "not found":
+            raise DropItem(f"Missing event location in {item}")
+
         if adapter['event_title'] in self.already_loaded_events:
             raise DropItem(f"Duplicate event found: {item}")
         else:
@@ -153,9 +161,9 @@ class MySqlPipeline:
         if adapter['call_for_papers_date'] != "Expired":
             adapter['call_for_papers_date'] = reformat_event_date(adapter['call_for_papers_date'])
 
-        adapter['location'] = adapter['location'].replace("\n", "")
+        if adapter.get('location'):
+            adapter['location'] = adapter['location'].replace("\n", "")
 
-        print(type(adapter['topics']))
         adapter['topics'] = categorize_topics(adapter['topics'])
         if not adapter['topics']:
             raise DropItem(f"Missing event topic in {item}")

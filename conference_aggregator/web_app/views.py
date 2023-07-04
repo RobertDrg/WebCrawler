@@ -18,6 +18,7 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 from django.http import HttpResponse
 
+
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 REDIRECT_URI = 'http://localhost:8080/'
 API_KEY = 'AIzaSyAeOyENMYYHiNdakfNtWKXryd6EP290CF0'
@@ -28,7 +29,7 @@ def add_to_google_calendar(request, event):
     user_email = request.user.email
     token_file = f"token_{user_email}.json"
     if os.path.exists(token_file):
-        creds = Credentials.from_authorized_user_file("token.json")
+        creds = Credentials.from_authorized_user_file(token_file)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -117,7 +118,7 @@ def index(request):
         topics = topics.filter(topics__icontains=selected_topic)
         print("Filtered Events:", events)
 
-    paginator = Paginator(events, 10)
+    paginator = Paginator(events, 5)
     page = request.GET.get('page')
     events_page = paginator.get_page(page)
     context = {
@@ -133,7 +134,7 @@ def search_view(request):
     multiple_queries = Q(Q(event_title__icontains=search_query) | Q(location__icontains=search_query))
     events = EventsTb.objects.filter(multiple_queries).order_by('date_time')
 
-    paginator = Paginator(events, 10)
+    paginator = Paginator(events, 5)
     page = request.GET.get('page')
     events_page = paginator.get_page(page)
     context = {

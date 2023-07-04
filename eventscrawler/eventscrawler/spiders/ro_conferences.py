@@ -1,8 +1,17 @@
+from urllib.parse import urlencode
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
-from eventscrawler.eventscrawler.items import Event
+from eventscrawler.items import Event
 import dateparser
 import re
+
+PROXY_API_KEY = 'dccc8b17-8406-481e-9b98-549f74800bb3'
+
+
+def get_proxy_url(url):
+    payload = {'api_key': PROXY_API_KEY, 'url': url}
+    proxy_url = 'https://proxy.scrapeops.io/v1/?' + urlencode(payload)
+    return proxy_url
 
 
 class RoConferencesSpider(CrawlSpider):
@@ -46,7 +55,7 @@ class RoConferencesSpider(CrawlSpider):
         event_url = response.url
         event_title = \
             response.xpath('/html/body/div[5]/div/div[2]/div/div[2]/div/table/tbody/tr[2]/td[2]/span/strong/text()') \
-            .get()
+                .get()
         start_date_day = str(response.xpath('//tr[2]/td[1]/div[1]/p/b/text()').get(default="not found"))
         start_date_month = str(response.xpath('//tr[2]/td[1]/div[1]/p/text()').get(default="not found"))
         start_date_year = str(response.xpath('//tr[2]/td[1]/div[1]/p/span/text()').get(default="not found"))
